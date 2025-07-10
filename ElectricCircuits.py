@@ -22,8 +22,27 @@ def generate_discrete_lti_circuit(R, L1, L2, C):
     return cont2discrete((a, b, c, d), dt=0.01)
 
 
-def simulate_circuit_on_white_noise(circuit, n_samples):
-    # white noise
-    u = np.random.normal(0, 1, size=(n_samples, 1))
-    # System simulation
-    return dlsim(circuit, u), u
+def generate_white_noise_signal(n_samples):
+    return np.random.normal(0, 2, size=(n_samples, 1))
+
+
+def multiple_circuit_simulation(n_input_signals, sys_1, sys_2, n_samples, generate_input_signal):
+    inputs = []
+    out_sys_1 = []
+    out_sys_2 = []
+
+    for _ in range(n_input_signals):
+        u = generate_input_signal(n_samples)
+        inputs.append(u)
+
+        # simulate first system
+        tout_1, y_1, x_1 = dlsim(sys_1, u)
+        out_sys_1.append(y_1)
+
+        # simulate second system
+        tout_2, y_2, x_2 = dlsim(sys_2, u)
+        out_sys_2.append(y_2)
+
+    outputs = {'system_1': out_sys_1, 'system_2': out_sys_2}
+
+    return inputs, outputs
