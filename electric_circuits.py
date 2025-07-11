@@ -19,11 +19,11 @@ def generate_discrete_lti_circuit(R, L1, L2, C):
 
     d = np.array([[0]])
 
-    return cont2discrete((a, b, c, d), dt=0.01)
+    return cont2discrete((a, b, c, d), dt=1)
 
 
 def generate_white_noise_signal(n_samples):
-    return np.random.normal(0, 2, size=(n_samples, 1))
+    return 100*np.random.normal(0, 0.6, size=(n_samples, 1))
 
 
 def multiple_circuit_simulation(n_input_signals, sys_1, sys_2, n_samples, generate_input_signal):
