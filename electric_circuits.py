@@ -26,6 +26,15 @@ def generate_white_noise_signal(n_samples):
     return 100*np.random.normal(0, 0.6, size=(n_samples, 1))
 
 
+def generate_sinusoidal_signal(n_samples):
+    f = 5
+    fs = 800
+    Ts = 1 / fs
+    n = np.arange(n_samples)
+    noise = np.random.normal(0, 0.2, size=n_samples)
+    return (10 * np.sin(2 * np.pi * f * n * Ts) + noise).reshape(-1, 1)
+
+
 def multiple_circuit_simulation(n_input_signals, sys_1, sys_2, n_samples, generate_input_signal):
     inputs = []
     out_sys_1 = []
