@@ -2,7 +2,7 @@ from electric_circuits import (generate_discrete_lti_circuit,
                                generate_white_noise_signal,
                                multiple_circuit_simulation,
                                generate_sinusoidal_signal)
-from clustering import generate_dataset_circuit, k_means
+from clustering import generate_dataset_circuit, k_means, compute_and_plot_conf_matrix
 from sklearn.metrics.cluster import adjusted_rand_score
 from distance_measures import extended_cepstral_distance
 
@@ -39,7 +39,8 @@ centroids_sinusoid, predicted_clusters_sinusoid = k_means(dataset_sinusoid, 2)
 
 print(f'ARI index white noise input: {adjusted_rand_score(true_clusters_noise, predicted_clusters_noise)}')
 print(f'ARI index sinusoid+noise input: {adjusted_rand_score(true_clusters_sinusoid, predicted_clusters_sinusoid)}')
-
+compute_and_plot_conf_matrix(true_clusters_noise, predicted_clusters_noise, 'noise signal clustering')
+compute_and_plot_conf_matrix(true_clusters_sinusoid, predicted_clusters_sinusoid, 'sinusoidal signal clustering')
 
 #for i in range(50):
 #    print(f"Distanza cepstral segnale {i}: {extended_cepstral_distance(inputs[i], outputs['system_1'][i], inputs[i], outputs['system_2'][i])}")

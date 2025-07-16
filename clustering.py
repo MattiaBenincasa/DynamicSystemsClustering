@@ -1,5 +1,7 @@
 import numpy as np
 from distance_measures import extended_cepstral_distance
+from matplotlib import pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 
 def generate_dataset_circuit(inputs, outputs_1, outputs_2):
@@ -43,3 +45,11 @@ def k_means(dataset, k, max_iters=500, tol=1e-8):
             break
         centroids = new_centroids
     return centroids, clusters
+
+
+def compute_and_plot_conf_matrix(true_labels, pred_labels, title_plot=None):
+    cm = confusion_matrix(true_labels, pred_labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+    plt.title(f"Confusion matrix: {title_plot}")
+    plt.show()
