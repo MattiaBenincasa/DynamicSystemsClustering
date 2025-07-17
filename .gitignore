@@ -22,3 +22,6 @@ cython_debug/
 
 .idea/
 *.iml
+
+fMRI/fMRI_data/
+fMRI/unrelated_subjects_final.txt
