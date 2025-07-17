@@ -24,3 +24,17 @@ def extended_cepstral_distance(u_1, y_1, u_2, y_2):
         distance += k*((c_y_1[k] - c_u_1[k])-(c_y_2[k] - c_u_2[k]))**2
 
     return distance
+
+
+def extended_cepstral_distance_mimo(u_1, y_1, u_2, y_2):
+    n_inputs, k = u_1.shape
+    n_outputs, _ = y_1.shape
+
+    distance = 0
+
+    for i in range(n_inputs):
+        for j in range(n_outputs):
+            distance += extended_cepstral_distance(u_1[i].reshape(-1, 1), y_1[j].reshape(-1, 1),
+                                                   u_2[i].reshape(-1, 1), y_2[j].reshape(-1, 1))
+
+    return distance
