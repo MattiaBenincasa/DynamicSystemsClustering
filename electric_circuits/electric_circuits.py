@@ -22,36 +22,48 @@ def generate_discrete_lti_circuit(R, L1, L2, C):
     return cont2discrete((a, b, c, d), dt=1)
 
 
-def generate_white_noise_signal(n_samples):
-    return 100*np.random.normal(0, 0.6, size=(n_samples, 1))
+def generate_white_noise_signal(n_samples, n_signals=1):
+    if n_signals > 1:
+        inputs = []
+        for i in range(n_signals):
+            inputs.append(100*np.random.normal(0, 0.6, size=n_samples))
+        return inputs
+    elif n_signals == 1:
+        return 100*np.random.normal(0, 0.6, size=n_samples)
 
 
-def generate_sinusoidal_signal(n_samples):
+def generate_sinusoidal_signal(n_samples, n_signals):
     f = 5
     fs = 800
     Ts = 1 / fs
     n = np.arange(n_samples)
     noise = np.random.normal(0, 0.2, size=n_samples)
-    return (10 * np.sin(2 * np.pi * f * n * Ts) + noise).reshape(-1, 1)
+    if n_signals > 1:
+        inputs = []
+        for i in range(n_signals):
+            inputs.append(10 * np.sin(2 * np.pi * f * n * Ts) + noise)
+        return inputs
+    elif n_signals == 1:
+        return 10 * np.sin(2 * np.pi * f * n * Ts) + noise
 
 
-def multiple_circuit_simulation(n_input_signals, sys_1, sys_2, n_samples, generate_input_signal):
-    inputs = []
-    out_sys_1 = []
-    out_sys_2 = []
+# simulate one circuit on more inputs
+def multi_input_circuit_simulation(input_signals, circuit):
+    output_signals = []
 
-    for _ in range(n_input_signals):
-        u = generate_input_signal(n_samples)
-        inputs.append(u)
+    for input_signal in input_signals:
+        _, y, _ = dlsim(circuit, input_signal)
+        output_signals.append(y.reshape(-1))
 
-        # simulate first system
-        tout_1, y_1, x_1 = dlsim(sys_1, u)
-        out_sys_1.append(y_1)
+    return output_signals
 
-        # simulate second system
-        tout_2, y_2, x_2 = dlsim(sys_2, u)
-        out_sys_2.append(y_2)
 
-    outputs = {'system_1': out_sys_1, 'system_2': out_sys_2}
+# simulate different circuits on the same input signals
+def multi_circuits_simulation_on_same_inputs(circuits, input_signals):
+    n_circuits = len(circuits)
+    outputs = np.array(n_circuits)
 
-    return inputs, outputs
+    for i in range(n_circuits):
+        outputs[i] = multi_input_circuit_simulation(input_signals, circuits[i])
+
+    return outputs
