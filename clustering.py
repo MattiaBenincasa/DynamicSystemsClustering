@@ -28,8 +28,11 @@ def update_centroids(dataset, clusters, k):
     new_centroids = []
     for i in range(k):
         cluster_points = dataset[clusters == i]
-        new_centroid = cluster_points.mean(axis=0)
-        new_centroids.append(new_centroid)
+        if len(cluster_points) == 0:
+            print('Empty cluster')
+        else:
+            new_centroid = cluster_points.mean(axis=0)
+            new_centroids.append(new_centroid)
     return np.array(new_centroids)
 
 

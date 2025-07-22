@@ -1,9 +1,11 @@
-from electric_circuits.test_clustering import test_two_circuits_clustering
+from electric_circuits.test_clustering import test_two_circuits_clustering, test_increasing_noise_intensity
 from fMRI.init_data import load_data, preprocess_data
 from distance_measures import extended_cepstral_distance_mimo, compute_distance_matrix
+from plot_cepstral import plot_cepstral_distance
 
-
-test_two_circuits_clustering()
+# test_two_circuits_clustering()
+test_increasing_noise_intensity()
+# plot_cepstral_distance()
 
 '''
 subject_ids, outputs, inputs, heart, resp = load_data()
