@@ -1,4 +1,4 @@
-from electric_circuits.electric_circuits import generate_white_noise_signal, generate_sinusoidal_signal, multi_input_circuit_simulation
+from electric_circuits.electric_circuits import generate_white_noise_signal, generate_sinusoidal_signal, simulate_circuit_on_multiple_input
 from electric_circuits.test_clustering import init_circuits
 from distance_measures import compute_distance_matrix
 import numpy as np
@@ -23,10 +23,10 @@ def plot_cepstral_distance():
 
     sys_1, sys_2 = init_circuits()
 
-    input_white_noise = generate_white_noise_signal(n_samples, 0, 0.6, n_signals)
-
-    outputs_white_noise = {'system_1': multi_input_circuit_simulation(input_white_noise, sys_1),
-                           'system_2': multi_input_circuit_simulation(input_white_noise, sys_2)}
+    # input_white_noise = generate_white_noise_signal(n_samples, 0, 0.6, n_signals)
+    input_white_noise = generate_sinusoidal_signal(n_samples, n_signals)
+    outputs_white_noise = {'system_1': simulate_circuit_on_multiple_input(input_white_noise, sys_1),
+                           'system_2': simulate_circuit_on_multiple_input(input_white_noise, sys_2)}
 
     print('Distance matrix different circuits')
     dm_different = compute_distance_matrix((input_white_noise, outputs_white_noise['system_1']),
@@ -42,7 +42,7 @@ def plot_cepstral_distance():
     print('------------------------------------------------')
 
     sigmas = [0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 1, 10, 20, 30]
-
+'''
     outputs_white_noise_sigmas = {}
     # change sigma
     for sigma in sigmas:
@@ -67,5 +67,5 @@ def plot_cepstral_distance():
     plt.xticks(x, [str(sigma) for sigma in sigmas])
     plt.ylabel('distance')
     plt.legend()
-    plt.show()
+    plt.show()'''
 

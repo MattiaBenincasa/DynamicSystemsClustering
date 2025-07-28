@@ -41,14 +41,14 @@ def generate_sinusoidal_signal(n_samples, n_signals=1):
     if n_signals > 1:
         inputs = []
         for i in range(n_signals):
-            inputs.append(10 * np.sin(2 * np.pi * f * n * Ts))
+            inputs.append(10 * np.sin(2 * np.pi * f * n * Ts) + np.random.normal(0, 0.2, size=n_samples))
         return inputs
     elif n_signals == 1:
-        return 10 * np.sin(2 * np.pi * f * n * Ts)
+        return 10 * np.sin(2 * np.pi * f * n * Ts) + np.random.normal(0, 0.2, size=n_samples)
 
 
 # simulate one circuit on more inputs
-def multi_input_circuit_simulation(input_signals, circuit):
+def simulate_circuit_on_multiple_input(input_signals, circuit):
     output_signals = []
 
     for input_signal in input_signals:
@@ -56,14 +56,3 @@ def multi_input_circuit_simulation(input_signals, circuit):
         output_signals.append(y.reshape(-1))
 
     return output_signals
-
-
-# simulate different circuits on the same input signals
-def multi_circuits_simulation_on_same_inputs(circuits, input_signals):
-    n_circuits = len(circuits)
-    outputs = np.array(n_circuits)
-
-    for i in range(n_circuits):
-        outputs[i] = multi_input_circuit_simulation(input_signals, circuits[i])
-
-    return outputs

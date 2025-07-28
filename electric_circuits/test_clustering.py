@@ -1,11 +1,12 @@
 from electric_circuits.electric_circuits import (generate_discrete_lti_circuit,
                                                  generate_white_noise_signal,
-                                                 multi_input_circuit_simulation,
+                                                 simulate_circuit_on_multiple_input,
                                                  generate_sinusoidal_signal)
 from clustering import generate_dataset_circuit, k_means, compute_and_plot_conf_matrix
 from sklearn.metrics.cluster import adjusted_rand_score
 import numpy as np
 from matplotlib import pyplot as plt
+
 
 def init_circuits():
     # first electric circuit
@@ -37,15 +38,15 @@ def test_two_circuits_clustering():
     inputs_noise = generate_white_noise_signal(n_samples, 0, 0.6, n_input_signals)
 
     # simulate circuits on white noise signal
-    outputs_noise = {'system_1': multi_input_circuit_simulation(inputs_noise, sys_1),
-                     'system_2': multi_input_circuit_simulation(inputs_noise, sys_2)}
+    outputs_noise = {'system_1': simulate_circuit_on_multiple_input(inputs_noise, sys_1),
+                     'system_2': simulate_circuit_on_multiple_input(inputs_noise, sys_2)}
 
     # generate sinusoidal signal
     inputs_sinusoidal = generate_sinusoidal_signal(n_samples, n_input_signals)
 
     # simulate circuits on sinusoidal signal
-    outputs_sinusoid = {'system_1': multi_input_circuit_simulation(inputs_sinusoidal, sys_1),
-                        'system_2': multi_input_circuit_simulation(inputs_sinusoidal, sys_2)}
+    outputs_sinusoid = {'system_1': simulate_circuit_on_multiple_input(inputs_sinusoidal, sys_1),
+                        'system_2': simulate_circuit_on_multiple_input(inputs_sinusoidal, sys_2)}
 
     dataset_noise, true_clusters_noise = generate_dataset_circuit(inputs_noise, outputs_noise['system_1'],
                                                                   outputs_noise['system_2'])
@@ -71,11 +72,11 @@ def test_increasing_noise_intensity():
     sigmas = [0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 1]
     ARIs = []
     for sigma in sigmas:
-        inputs_noise = generate_white_noise_signal(n_samples, 0, 0.6, n_input_signals)
-
-        outputs_white_noise = {'system_1': np.add(multi_input_circuit_simulation(inputs_noise, sys_1),
+        # inputs_noise = generate_white_noise_signal(n_samples, 0, 0.6, n_input_signals)
+        inputs_noise = generate_sinusoidal_signal(n_samples, n_input_signals)
+        outputs_white_noise = {'system_1': np.add(simulate_circuit_on_multiple_input(inputs_noise, sys_1),
                                                   np.random.normal(0, sigma, size=(n_input_signals, n_samples))),
-                               'system_2': np.add(multi_input_circuit_simulation(inputs_noise, sys_2),
+                               'system_2': np.add(simulate_circuit_on_multiple_input(inputs_noise, sys_2),
                                                   np.random.normal(0, sigma, size=(n_input_signals, n_samples)))}
 
         dataset_noise, true_clusters_noise = generate_dataset_circuit(inputs_noise, outputs_white_noise['system_1'],
@@ -90,7 +91,7 @@ def test_increasing_noise_intensity():
     plt.xticks(x, [str(sigma) for sigma in sigmas])
     plt.xlabel('standard deviation measure error')
     plt.ylabel('ARI')
-    plt.title('White noise in - different standard deviation')
+    plt.title('sinusoid in - different standard deviation')
     plt.legend()
     plt.show()
 
