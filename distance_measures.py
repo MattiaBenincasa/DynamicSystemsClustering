@@ -49,24 +49,3 @@ def compute_distance_matrix(in_out_1, in_out_2):
             dm[i, j] = extended_cepstral_distance(in_out_1[0][i], in_out_1[1][i], in_out_2[0][j], in_out_2[1][j])
 
     return dm
-
-
-'''
-def compute_distance_matrix(subject_ids, inputs, outputs, distance_function):
-    n = len(subject_ids)
-
-    d = np.zeros((n, n))
-
-    for i in range(n):
-        subject_id_i = subject_ids[i]
-        u_1, y_1 = inputs[subject_id_i], outputs[subject_id_i]
-        for j in range(i+1, n):
-            print(f'i: {i} j: {j}')
-            subject_id_j = subject_ids[j]
-            u_2, y_2 = inputs[subject_id_j], outputs[subject_id_j]
-            distance = distance_function(u_1, y_1, u_2, y_2)
-            d[i, j] = distance
-            d[j, i] = distance
-
-    np.save('distance_matrix.npy', d)
-    return d'''

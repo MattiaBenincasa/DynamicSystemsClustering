@@ -35,7 +35,7 @@ def load_data():
     return subject_ids, outputs, inputs, heart, resp
 
 
-def preprocess_data(outputs, heart, resp):
+def preprocess_single_output(outputs, heart, resp):
     # physiological signals
     U_P = np.vstack([heart, resp])
 
@@ -53,5 +53,13 @@ def preprocess_data(outputs, heart, resp):
     fir_coeff = remez(numtaps, bands, desired, weight=weights, fs=fs)
 
     outputs_rf = filtfilt(fir_coeff, [1.0], outputs_r, axis=1)
+
+    return outputs_rf
+
+
+def preprocess_output_data(subject_ids, outputs, heart, resp):
+    outputs_rf = {}
+    for subject_id in subject_ids:
+        outputs_rf[subject_id] = preprocess_single_output(outputs[subject_id], heart[subject_id], resp[subject_id])
 
     return outputs_rf
