@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.fft import ifft
-from scipy.signal import csd, cont2discrete, dlti
+from scipy.signal import csd
 
 
 def compute_cpsd_matrix(x, y, Ts, return_onesided=False):
@@ -51,8 +51,3 @@ def compute_cepstral_distance(u_1, y_1, u_2, y_2):
         distance += k*difference*difference
 
     return distance
-
-
-def create_discrete_mimo_system(A, B, C, D, dt=1.0):
-    sys = cont2discrete((A, B, C, D), dt)
-    return dlti(*sys[:4])
