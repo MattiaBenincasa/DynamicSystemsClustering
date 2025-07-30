@@ -1,4 +1,9 @@
-from electric_circuits.electric_circuits import generate_white_noise_signal, generate_sinusoidal_signal, simulate_circuit_on_multiple_input
+from scipy.signal import dlsim
+from distance_measures import extended_cepstral_distance
+from electric_circuits.electric_circuits import (generate_white_noise_signal,
+                                                 generate_sinusoidal_signal,
+                                                 simulate_circuit_on_multiple_input,
+                                                 simulate_circuit_on_multi_input_with_x0)
 from electric_circuits.test_clustering import init_circuits
 from distance_measures import compute_distance_matrix
 import numpy as np
@@ -68,4 +73,40 @@ def plot_cepstral_distance():
     plt.ylabel('distance')
     plt.legend()
     plt.show()'''
+
+
+def test_different_initial_conditions():
+
+    # distance between same circuit but with different initial conditions
+    n_samples = 2**14
+    n_states = 3
+    n_tests = 10
+    sys_1, sys_2 = init_circuits()
+    u = generate_white_noise_signal(n_samples, 0, 0.6, n_tests)
+
+    x0_1 = np.random.normal(0, 0.6, size=(n_states, n_tests))
+    x0_2 = np.random.normal(0, 3, size=(n_states, n_tests))
+    x0_3 = np.random.normal(0, 10, size=(n_states, n_tests))
+    x0_4 = np.random.normal(0, 100, size=(n_states, n_tests))
+
+    # simulate sys_1 on u signals with x(0) = 0
+    outputs_no_x0 = simulate_circuit_on_multiple_input(u, sys_1)
+
+    # simulate sys_1 on u signals with x(0) != 0
+    outputs_with_x0_1 = simulate_circuit_on_multi_input_with_x0(u, sys_1, x0_1)
+    outputs_with_x0_2 = simulate_circuit_on_multi_input_with_x0(u, sys_1, x0_2)
+    outputs_with_x0_3 = simulate_circuit_on_multi_input_with_x0(u, sys_1, x0_3)
+    outputs_with_x0_4 = simulate_circuit_on_multi_input_with_x0(u, sys_1, x0_4)
+
+    compute_and_print_distance('Initial_conditions with sigma = 0.6', u, outputs_no_x0, outputs_with_x0_1)
+    compute_and_print_distance('Initial_conditions with sigma = 3', u, outputs_no_x0, outputs_with_x0_2)
+    compute_and_print_distance('Initial_conditions with sigma = 10', u, outputs_no_x0, outputs_with_x0_3)
+    compute_and_print_distance('Initial_conditions with sigma = 100', u, outputs_no_x0, outputs_with_x0_4)
+
+
+def compute_and_print_distance(title, inputs, outputs_no_x0, outputs_with_x0):
+    print(title)
+
+    for i in range(len(inputs)):
+        print(f'Input {i}: {extended_cepstral_distance(inputs[i].T, outputs_no_x0[i], inputs[i].T, outputs_with_x0[i])}')
 

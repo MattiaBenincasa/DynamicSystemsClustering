@@ -1,7 +1,8 @@
 from electric_circuits.electric_circuits import (generate_discrete_lti_circuit,
                                                  generate_white_noise_signal,
                                                  simulate_circuit_on_multiple_input,
-                                                 generate_sinusoidal_signal)
+                                                 generate_sinusoidal_signal,
+                                                 simulate_circuit_on_multi_input_with_x0)
 from clustering import generate_dataset_circuit, k_means, compute_and_plot_conf_matrix
 from sklearn.metrics.cluster import adjusted_rand_score
 import numpy as np
@@ -99,3 +100,28 @@ def test_increasing_noise_intensity():
     # print(f'ARI index white noise input: {adjusted_rand_score(true_clusters_noise, predicted_clusters_noise)}')
     # print('----------------------------------------------')
     # compute_and_plot_conf_matrix(true_clusters_noise, predicted_clusters_noise, 'noise signal clustering')
+
+
+def test_clustering_with_different_initial_conditions(sigma):
+    #   clustering of 100 (u, y) signal pairs: 50 from system 1 and 50 from system 2.
+    #   Within the group of 50 signals, there are 25 outputs generated with x(0) = 0
+    #   and 25 generated with x!=0.
+    #   Different initial conditions are generated from normal distribution with sigma
+    #   standard deviation
+
+    n_samples = 2**12
+    sys_1, sys_2 = init_circuits()
+    inputs = generate_white_noise_signal(n_samples, 0, 0.6, 50)
+    x0_1 = np.random.normal(0, sigma, size=(3, 25))
+    x0_2 = np.random.normal(0, sigma, size=(3, 25))
+    outputs_1_no_x0 = simulate_circuit_on_multiple_input(inputs[:25], sys_1)
+    outputs_2_no_x0 = simulate_circuit_on_multiple_input(inputs[:25], sys_2)
+    outputs_1_with_x0 = simulate_circuit_on_multi_input_with_x0(inputs[25:50], sys_1, x0_1)
+    outputs_2_with_x0 = simulate_circuit_on_multi_input_with_x0(inputs[25:50], sys_2, x0_2)
+
+    outputs_1 = outputs_1_no_x0 + outputs_1_with_x0
+    outputs_2 = outputs_2_no_x0 + outputs_2_with_x0
+
+    dataset, true_clusters = generate_dataset_circuit(inputs, outputs_1, outputs_2)
+    centroids, predicted_clusters = k_means(dataset, 2)
+    print(adjusted_rand_score(true_clusters, predicted_clusters))

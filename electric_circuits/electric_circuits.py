@@ -56,3 +56,13 @@ def simulate_circuit_on_multiple_input(input_signals, circuit):
         output_signals.append(y.reshape(-1))
 
     return output_signals
+
+
+def simulate_circuit_on_multi_input_with_x0(input_signals, circuit, x0):
+    output_signals = []
+
+    for i in range(len(input_signals)):
+        _, y, _ = dlsim(circuit, input_signals[i], x0=x0[:, i])
+        output_signals.append(y.reshape(-1))
+
+    return output_signals
