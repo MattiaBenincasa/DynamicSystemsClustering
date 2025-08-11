@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.signal import cont2discrete, dlsim
-
+from matplotlib import pyplot as plt
 
 # The circuit topology implemented here follows the configuration described in:
 # O. Lauwers, B. De Moor, "A time series distance measure for efficient clustering of input/output
@@ -66,3 +66,19 @@ def simulate_circuit_on_multi_input_with_x0(input_signals, circuit, x0):
         output_signals.append(y.reshape(-1))
 
     return output_signals
+
+
+def simulate_circuit_on_multiple_inputs_with_output_noise(input_signals, circuit, snr):
+    clean_outputs = simulate_circuit_on_multiple_input(input_signals, circuit)
+    noisy_output = []
+    for output in clean_outputs:
+        noisy_output.append(generate_noise_from_SNR(output, snr))
+
+    return noisy_output
+
+
+def generate_noise_from_SNR(signal, snr):
+    power_signal = np.mean(signal**2)
+    power_noise = power_signal / (10 ** (snr/ 10))
+    noise = np.random.normal(0, np.sqrt(power_noise), size=signal.size)
+    return signal + noise
