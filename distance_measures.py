@@ -37,15 +37,3 @@ def extended_cepstral_distance_mimo(u_1, y_1, u_2, y_2):
             distance += extended_cepstral_distance(u_1[i], y_1[j], u_2[i], y_2[j])
 
     return distance
-
-
-def compute_distance_matrix(in_out_1, in_out_2):
-    n = len(in_out_1[0])
-    m = len(in_out_2[0])
-    dm = np.zeros((n, m))
-
-    for i in range(n):
-        for j in range(m):
-            dm[i, j] = extended_cepstral_distance(in_out_1[0][i], in_out_1[1][i], in_out_2[0][j], in_out_2[1][j])
-
-    return dm
