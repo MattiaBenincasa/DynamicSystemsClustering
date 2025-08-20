@@ -74,7 +74,7 @@ def assign_clusters_mimo(inputs, outputs, cen_in, cen_out, k):
     clusters = []
     n_points = len(inputs)
     for i in range(n_points):
-        distances = [compute_cepstral_distance(inputs[i], outputs[i], cen_in[j], cen_out[j]) for j in range(k)]
+        distances = [compute_cepstral_distance(inputs[i], outputs[i], cen_in[j], cen_out[j], eps=1e-14) for j in range(k)]
         cluster = np.argmin(distances)
         clusters.append(cluster)
 
@@ -97,7 +97,7 @@ def update_centroids_mimo(inputs, outputs, clusters, k):
     return np.array(new_centroids_in), np.array(new_centroids_out)
 
 
-def k_means_mimo(inputs, outputs, k, max_iters=500, tol=1e-8):
+def k_means_mimo(inputs, outputs, k, max_iters=500, tol=1e-6):
     centroids_indices = np.random.choice(len(inputs), size=k, replace=False)
     cen_in = [inputs[i] for i in centroids_indices]
     cen_out = [outputs[i] for i in centroids_indices]
