@@ -58,3 +58,49 @@ def plot_distance_comparison(results_same, results_different, title, x_label, y_
     plt.ylabel(y_label)
     plt.legend()
     plt.show()
+
+
+def compute_mean_and_std(ari_values):
+    results = {}
+    for key, ari_values in ari_values.items():
+        mean = np.mean(ari_values)
+        dev_std = np.std(ari_values)
+        results[key] = {
+            'mean': mean,
+            'dev_std': dev_std
+        }
+
+    return results
+
+
+def plot_mean_and_std(results, title, x_label, y_label):
+    keys = list(results.keys())
+    means = [result['mean'] for result in results.values()]
+    dev_std = [result['dev_std'] for result in results.values()]
+
+    lower_errors = []
+    upper_errors = []
+    for m, s in zip(means, dev_std):
+        lower = max(0, m - s)
+        upper = min(1, m + s)
+        lower_errors.append(m - lower)
+        upper_errors.append(upper - m)
+
+    asymmetric_errors = [lower_errors, upper_errors]
+
+    plt.figure(figsize=(8, 6))
+    plt.bar(
+        [str(k) for k in keys],
+        means,
+        capsize=5,
+        width=0.6,
+        color='skyblue',
+        ecolor='red'
+    )
+
+    plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.ylim(0, 1.05)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.show()

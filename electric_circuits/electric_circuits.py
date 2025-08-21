@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 # The circuit topology implemented here follows the configuration described in:
 # O. Lauwers, B. De Moor, "A time series distance measure for efficient clustering of input/output
 # signals by their underlying dynamics", see Figure 1.
-def generate_discrete_lti_circuit(R, L1, L2, C):
+def generate_discrete_lti_circuit(R, L1, L2, C, fs):
     # system matrices
     a = np.array([[0, 1 / L2, 0],
                   [-1 / C, 0, -1 / C],
@@ -20,7 +20,7 @@ def generate_discrete_lti_circuit(R, L1, L2, C):
 
     d = np.array([[0]])
 
-    return cont2discrete((a, b, c, d), dt=1)
+    return cont2discrete((a, b, c, d), dt=1/fs)
 
 
 def generate_white_noise_signal(n_samples, mean, sigma, n_signals=1):
@@ -33,12 +33,9 @@ def generate_white_noise_signal(n_samples, mean, sigma, n_signals=1):
         return 100*np.random.normal(mean, sigma, size=n_samples)
 
 
-def generate_sinusoidal_signal(n_samples, n_signals=1):
-    f = 5
-    fs = 800
+def generate_sinusoidal_signal(n_samples, f=2, fs=100, n_signals=1):
     Ts = 1 / fs
     n = np.arange(n_samples)
-    # noise = np.random.normal(0, 0.2, size=n_samples)
     if n_signals > 1:
         inputs = []
         for i in range(n_signals):
@@ -48,20 +45,11 @@ def generate_sinusoidal_signal(n_samples, n_signals=1):
         return 10 * np.sin(2 * np.pi * f * n * Ts) + np.random.normal(0, 0.2, size=n_samples)
 
 
-def generate_multi_sine_wave(n_samples):
+def generate_multi_sine_wave(n_samples, n_sinusoid, max_amp, min_amp,
+                             max_freq, min_freq, max_phase, min_phase, fs=100):
     # sampling parameters
-    fs = 400
     Ts = 1 / fs
     n = np.arange(n_samples)
-
-    n_sinusoid = 3
-    max_amp = 5.0
-    min_amp = 0.5
-    max_freq = 0.01
-    min_freq = 0.001
-    min_phase = 0
-    max_phase = 2 * np.pi
-
     sinusoidal_signals = []
 
     for sinusoid in range(n_sinusoid):
@@ -82,14 +70,20 @@ def generate_multi_sine_wave(n_samples):
     return multi_sine
 
 
-def generate_multiple_multi_sin_waves(n_samples, n_signals):
+def generate_multiple_multi_sin_waves(n_samples, n_signals, fs=100,
+                                      n_sinusoid=3,
+                                      max_amp=5.0,
+                                      min_amp=0.5,
+                                      max_freq=5,
+                                      min_freq=1,
+                                      min_phase=0,
+                                      max_phase=2*np.pi):
     if n_signals > 1:
-        signals = []
-        for _ in range(n_signals):
-            signals.append(generate_multi_sine_wave(n_samples))
-        return signals
+        return [generate_multi_sine_wave(n_samples, n_sinusoid, max_amp, min_amp,
+                                         max_freq, min_freq, max_phase, min_phase, fs) for _ in range(n_signals)]
     else:
-        return generate_multi_sine_wave(n_samples)
+        return generate_multi_sine_wave(n_samples, n_sinusoid, max_amp, min_amp,
+                                        max_freq, min_freq, max_phase, min_phase, fs)
 
 
 # simulate one circuit on more inputs
