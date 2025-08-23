@@ -1,8 +1,8 @@
 import numpy as np
-from distance_measures import extended_cepstral_distance
+from cepstral_distance_siso import extended_cepstral_distance
 from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from mimo_systems.power_cepstrum import compute_cepstral_distance
+from mimo_systems.cepstral_distance_mimo import compute_cepstral_distance
 
 
 def generate_dataset_circuit(inputs, outputs_1, outputs_2):

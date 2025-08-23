@@ -172,7 +172,7 @@ def setup_and_execute_tests():
     for n in n_samples:
         white_noise_inputs[n] = [generate_white_noise_signal(n, 0, 0.6, 50) for _ in range(r)]
 
-    # test_two_circuits_clustering(sys_1, sys_2, n_samples, r, white_noise_inputs)
+    test_two_circuits_clustering(sys_1, sys_2, n_samples, r, white_noise_inputs)
 
     snr_values = [35, 30, 25, 15]
     white_noise_inputs_snr = {}

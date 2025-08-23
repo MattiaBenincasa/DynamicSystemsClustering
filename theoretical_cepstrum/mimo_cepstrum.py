@@ -1,9 +1,9 @@
 import numpy as np
 import control.matlab as ml
-from theoretical_cepstrum import poles_zeros_cepstrum
+from siso_cepstrum import poles_zeros_cepstrum
 import control
 from matplotlib import pyplot as plt
-from mimo_systems.power_cepstrum import compute_cepstrum_transfer_function
+from mimo_systems.cepstral_distance_mimo import compute_cepstrum_transfer_function
 from control import forced_response
 
 

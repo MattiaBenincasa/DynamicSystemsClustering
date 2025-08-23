@@ -2,7 +2,7 @@ from statistics import mean
 import numpy as np
 from matplotlib import pyplot as plt
 
-from distance_measures import extended_cepstral_distance
+from cepstral_distance_siso import extended_cepstral_distance
 
 
 def compute_distance_matrix(in_out_1, in_out_2):

@@ -1,9 +1,8 @@
 import numpy as np
 from electric_circuits.test_clustering import setup_and_execute_tests
 from fMRI.init_data import load_data, preprocess_output_data
-from input_analysis import count_1s_in_input, find_differences, group_equal_matrices
-from mimo_systems.power_cepstrum import compute_cepstral_distance
-from mimo_systems.mimo_system import compute_distance_between_mimo_systems
+from mimo_systems.cepstral_distance_mimo import compute_cepstral_distance
+from mimo_systems.mimo_system import compute_distance_between_mimo_systems, generate_white_noise_signal
 from mimo_systems.test_clustering import test_clustering_two_mimo_systems
 import time
 
@@ -11,16 +10,17 @@ from fMRI_data.fMRI_data_generator import (
     generate_estimated_system,
     simulate_estimated_statespace_system,
     generate_input_from_visual_cue_times,
+    generate_input_from_another_input
 )
 from fMRI_data.test_clustering import test_clustering
 
 # SISO -> circuit
-setup_and_execute_tests()
+# setup_and_execute_tests()
 
 # MIMO System
 # compute_distance_between_mimo_systems()
 # test_clustering_two_mimo_systems()
-'''
+
 sys_1 = generate_estimated_system("100206")
 sys_2 = generate_estimated_system("756055")
 
@@ -43,4 +43,3 @@ print(f'Same system: {compute_cepstral_distance(in_1, y_sim_1, in_2, y_sim_3, ep
 print(f"Execution time: {end_time-start_time} sec")
 
 # test_clustering()
-'''

@@ -71,3 +71,13 @@ def generate_variable_inputs_2(input_channels=6, length=284):
 
     return inputs
 
+
+def generate_input_from_another_input(inputs):
+    new_inputs = inputs.copy()
+
+    one_indices = np.argwhere(new_inputs[1:5, :] == 1)
+    indices = random.choice(one_indices)
+    new_inputs[indices[0]+1, indices[1]] = 0
+    new_inputs[indices[0]+1, indices[1]+3] = 1
+
+    return new_inputs

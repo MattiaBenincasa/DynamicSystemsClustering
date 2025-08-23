@@ -1,7 +1,7 @@
 from scipy.signal import cont2discrete, dlti, dlsim
 import numpy as np
 
-from mimo_systems.power_cepstrum import compute_cepstral_distance
+from mimo_systems.cepstral_distance_mimo import compute_cepstral_distance
 
 
 def create_discrete_mimo_system(A, B, C, D, dt=1.0):

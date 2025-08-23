@@ -2,12 +2,13 @@ import random
 
 from fMRI_data.fMRI_data_generator import (generate_estimated_system,
                                            generate_input_from_visual_cue_times,
-                                           simulate_estimated_statespace_system)
+                                           simulate_estimated_statespace_system,
+                                           generate_input_from_another_input)
 import numpy as np
 from sklearn.metrics.cluster import adjusted_rand_score
-from mimo_systems.power_cepstrum import compute_cepstral_distance
+from mimo_systems.cepstral_distance_mimo import compute_cepstral_distance
 from sklearn_extra.cluster import KMedoids
-from scipy.cluster.hierarchy import linkage, fcluster
+from sklearn.cluster import AgglomerativeClustering
 
 
 def compute_distance_matrix(dataset_in, dataset_out):
@@ -18,16 +19,18 @@ def compute_distance_matrix(dataset_in, dataset_out):
         print(f'riga {i}')
         for j in range(i+1, length):
             print(f'colonna {j}')
-            dist = compute_cepstral_distance(dataset_in[i], dataset_out[i], dataset_in[j], dataset_out[j], eps=1e-15)
+            dist = compute_cepstral_distance(dataset_in[i], dataset_out[i], dataset_in[j], dataset_out[j], eps=1e-14)
             dm[i, j] = dm[j, i] = dist
 
     return dm
 
 
 def test_clustering():
-
+    # np.random.seed(seed=42)
+    # random.seed(42)
     # id_systems = (100206, 100610, 101006, 101309, 101915, 510326, 517239, 520228, 524135, 525541)
     id_systems = (100206, 520228)
+    data_per_cluster = 10
     systems = []
 
     for id_system in id_systems:
@@ -40,10 +43,11 @@ def test_clustering():
         [10, 34, 54, 78, 97, 140, 159, 178, 222, 244],
         [12, 32, 54, 75, 96, 140, 159, 180, 220, 242]]
 
-    inputs = np.zeros((10, 6, 284), dtype=float)
-
-    for i in range(10):
+    inputs = np.zeros((data_per_cluster, 6, 284), dtype=float)
+    base_input = generate_input_from_visual_cue_times(visual_cues[0])
+    for i in range(data_per_cluster):
         inputs[i] = generate_input_from_visual_cue_times(visual_cues[0])
+        # inputs[i] = generate_input_from_another_input(base_input)
 
     # for i in range(10, 15):
     #    inputs[i] = generate_input_from_visual_cue_times(visual_cues[1])
@@ -52,24 +56,24 @@ def test_clustering():
     #     inputs[i] = generate_input_from_visual_cue_times(visual_cues[2])
 
     # 20 outputs for 20 systems
-    outputs = np.zeros((len(systems), 10, 148, 284))
+    outputs = np.zeros((len(systems), data_per_cluster, 148, 284))
 
     for i in range(len(systems)):
-        for j in range(10):
+        for j in range(data_per_cluster):
             outputs[i, j] = simulate_estimated_statespace_system(systems[i], inputs[j])[1]
 
     # dataset creation
     dataset_in = np.tile(inputs, (len(systems), 1, 1))
-    dataset_out = np.zeros((10*len(systems), 148, 284))
+    dataset_out = np.zeros((data_per_cluster*len(systems), 148, 284))
 
     k = 0
     for i in range(len(systems)):
-        for j in range(10):
+        for j in range(data_per_cluster):
             dataset_out[k] = outputs[i, j]
             k += 1
 
     clusters_numbers = np.arange(len(systems))
-    true_clusters = np.repeat(clusters_numbers, 10)
+    true_clusters = np.repeat(clusters_numbers, data_per_cluster)
     permutation = np.random.permutation(len(dataset_in))
 
     # apply permutation to dataset in e out and cluster labels
@@ -78,10 +82,10 @@ def test_clustering():
     dataset_out = dataset_out[permutation]
 
     # execute clustering
-    # cen_in, cen_out, predicted_clusters = k_means_mimo(dataset_in, dataset_out, 2)
     dm = compute_distance_matrix(dataset_in, dataset_out)
-    # print(np.max(dm))
-    # print(np.min(dm))
     model = KMedoids(n_clusters=len(systems), metric="precomputed", random_state=0, max_iter=1000)
-    predicted_clusters = model.fit_predict(dm)
-    print(f"ARI: {adjusted_rand_score(true_clusters, predicted_clusters)}")
+    predicted_clusters_km = model.fit_predict(dm)
+    agg_clustering = AgglomerativeClustering(n_clusters=len(systems), metric='precomputed', linkage='complete')
+    predicted_clusters_agg = agg_clustering.fit_predict(dm)
+    print(f"KMedoids ARI: {adjusted_rand_score(true_clusters, predicted_clusters_km)}")
+    print(f"Agglomerative ARI: {adjusted_rand_score(true_clusters, predicted_clusters_agg)}")
