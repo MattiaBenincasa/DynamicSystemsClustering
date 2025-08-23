@@ -27,8 +27,8 @@ def compute_power_cepstrum(p_xy):
         m = p_xy[k, :, :]
         det_m = np.linalg.det(p_xy[k, :, :])
         tr = np.real(np.trace(p_xy[k])) / p_xy.shape[1]
-        # eps = 1e-9 * tr
-        eps = 0
+        eps = 1e-13 * tr
+        # eps = 0
         det_eps = np.linalg.det(p_xy[k, :, :]+eps*np.eye(p_xy.shape[1]))
         c[k] = np.log(np.abs(np.linalg.det(p_xy[k, :, :]+eps*np.eye(p_xy.shape[1]))))
 
