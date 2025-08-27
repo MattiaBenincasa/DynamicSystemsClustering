@@ -8,7 +8,7 @@ def compute_cpsd_matrix(x, y, Ts, nperseg=64, return_onesided=False):
     n_signal_y = len(y)
     fs = 1 / Ts
 
-    freqs, _ = csd(y[0], y[0], fs=fs, nperseg=64, return_onesided=return_onesided)
+    freqs, _ = csd(y[0], y[0], fs=fs, nperseg=nperseg, return_onesided=return_onesided)
 
     p_xy = np.zeros((len(freqs), n_signal_x, n_signal_y,), dtype=complex)
 
