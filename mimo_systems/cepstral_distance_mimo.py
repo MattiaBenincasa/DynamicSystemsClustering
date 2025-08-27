@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.fft import ifft
-from scipy.signal import csd, welch
+from scipy.signal import csd
 
 
 def compute_cpsd_matrix(x, y, Ts, nperseg=64, return_onesided=False):

@@ -95,6 +95,7 @@ def generate_input_with_single_channel_active(n_channel, cues):
     return inputs
 
 
+# norms and distances
 def compute_norm_for_all_systems():
     norms = {}
 
