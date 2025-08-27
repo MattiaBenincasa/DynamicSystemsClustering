@@ -3,7 +3,8 @@ import random
 from fMRI_data.fMRI_data_generator import (generate_estimated_system,
                                            generate_input_from_visual_cue_times,
                                            simulate_estimated_statespace_system,
-                                           generate_input_from_another_input)
+                                           generate_input_from_another_input, get_systems_with_different_norms,
+                                           compute_norm_for_all_systems, get_distant_systems)
 import numpy as np
 from sklearn.metrics.cluster import adjusted_rand_score
 from mimo_systems.cepstral_distance_mimo import compute_cepstral_distance
@@ -28,9 +29,13 @@ def compute_distance_matrix(dataset_in, dataset_out):
 def test_clustering():
     # np.random.seed(seed=42)
     # random.seed(42)
-    # id_systems = (100206, 100610, 101006, 101309, 101915, 510326, 517239, 520228, 524135, 525541)
-    id_systems = (100206, 520228)
-    data_per_cluster = 10
+    # id con dinamiche uguali 100206, 100610, 101006, 517239, 520228, 524135, 525541, 667056
+    # id_systems = (100206, 101309, 756055) # 695768
+    norms = compute_norm_for_all_systems()
+    id_systems = get_systems_with_different_norms(8, 45, norms).keys()
+    # id_systems = (100206, 667056)
+    #id_systems = get_distant_systems(10, 7)
+    data_per_cluster = 20
     systems = []
 
     for id_system in id_systems:

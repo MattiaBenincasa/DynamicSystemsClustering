@@ -24,10 +24,35 @@ def poles_zeros_cepstrum(poles, zeros, weights):
     return th_cepstrum
 
 
+def poles_zeros_norm(poles, zeros):
+
+    if poles[0] >= 1:
+        zeros_minimum = [1 / x for x in zeros]
+        poles_minimum = [1 / x for x in poles]
+    else:
+        zeros_minimum = zeros
+        poles_minimum = poles
+
+    distpoleszeros = np.sum(np.log((1 - np.outer(poles_minimum, np.conj(zeros_minimum))) ** 2)) - np.sum(
+        np.log(1 - np.outer(poles_minimum, np.conj(poles_minimum)))) - np.sum(
+        np.log(1 - np.outer(zeros_minimum, np.conj(zeros_minimum))))
+    return distpoleszeros
+
+
+def poles_and_zeros_distance(poles_1, zeros_1, poles_2, zeros_2):
+    distance = 0
+    for k in range(1, 64):
+        sum_ = np.real(np.sum(np.power(zeros_1, np.abs(k))/np.abs(k)) - np.sum(np.power(poles_1, np.abs(k))/np.abs(k)) -
+                       np.sum(np.power(zeros_2, np.abs(k))/np.abs(k)) + np.sum(np.power(poles_2, np.abs(k))/np.abs(k)))
+        distance += k * sum_ * sum_
+
+    return distance
+
+
 def compare_th_data_cepstrum():
     np.random.seed(seed=0)
 
-    N = 2 ** 14  # N is the length of the time series. The longer it is, the more reliable the estimates of the spectra will be.
+    N = 2 ** 6  # N is the length of the time series. The longer it is, the more reliable the estimates of the spectra will be.
     fs = 100     # sampling frequency
 
     zeros = [0.8, 0.6, 0]
@@ -36,6 +61,8 @@ def compare_th_data_cepstrum():
 
     sys = sps.ZerosPolesGain(zeros, poles, k, dt=1 / fs)  # Initialize the system
     u = np.random.randn(N)
+    # x_0 = np.random.normal(0, 200, size=3)
+    # noise = 100*np.random.normal(10, 100, size=2**6)
     ty, y = sps.dlsim(sys, u)
     y = y[:, 0]
 

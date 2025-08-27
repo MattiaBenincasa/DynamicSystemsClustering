@@ -24,4 +24,5 @@ cython_debug/
 *.iml
 
 fMRI/fMRI_data/
-fMRI/unrelated_subjects_final.txt
+fMRI_data/matrix_estimated
+fMRI_data/unrelated_subjects_final.txt
