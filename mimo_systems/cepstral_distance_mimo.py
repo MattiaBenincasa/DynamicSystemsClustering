@@ -4,7 +4,7 @@ from scipy.signal import csd
 from cepstral_distance_siso import extended_cepstral_distance
 
 
-def compute_cpsd_matrix(x, y, Ts, nperseg=64, return_onesided=False):
+def compute_cpsd_matrix(x, y, Ts, nperseg=4096, return_onesided=False):
     n_signal_x = len(x)
     n_signal_y = len(y)
     fs = 1 / Ts

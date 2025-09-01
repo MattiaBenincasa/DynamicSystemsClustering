@@ -26,7 +26,7 @@ from fMRI_data.test_clustering import test_clustering, test_clustering_single_in
 # test_2()
 # test_3()
 # test_4()
-test_5()
+# test_5()
 # MIMO System
 # compute_distance_between_mimo_systems()
 # test_clustering_two_mimo_systems()

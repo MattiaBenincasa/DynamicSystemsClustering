@@ -49,10 +49,9 @@ def poles_and_zeros_distance(poles_1, zeros_1, poles_2, zeros_2):
     return distance
 
 
-def compare_th_data_cepstrum():
+def compare_th_data_cepstrum(n_samples, title_plots):
     np.random.seed(seed=0)
 
-    N = 2 ** 6  # N is the length of the time series. The longer it is, the more reliable the estimates of the spectra will be.
     fs = 100     # sampling frequency
 
     zeros = [0.8, 0.6, 0]
@@ -60,23 +59,27 @@ def compare_th_data_cepstrum():
     k = 1
 
     sys = sps.ZerosPolesGain(zeros, poles, k, dt=1 / fs)  # Initialize the system
-    u = np.random.randn(N)
+    u = np.random.randn(n_samples)
     # x_0 = np.random.normal(0, 200, size=3)
     # noise = 100*np.random.normal(10, 100, size=2**6)
     ty, y = sps.dlsim(sys, u)
     y = y[:, 0]
 
-    powerceps = power_cepstrum(u, y, N, fs)  # Estimate the power cepstral coefficients of the underlying system.
+    powerceps = power_cepstrum(u, y, n_samples, fs)  # Estimate the power cepstral coefficients of the underlying system.
 
     powercepslength = int(np.floor(powerceps.shape[0] / 2))  # This is the length of one side of the power cepstrum.
     weights = np.arange(0, powercepslength)  # Initialize the weights
 
     th_cepstrum = poles_zeros_cepstrum(poles, zeros, weights)   # Calultate real power cepstrum coefficients of the system.
-    plt.title("Confronto cepstrum sistema SISO")
+    plt.title(title_plots)
     plt.plot(th_cepstrum[1:30], label='Real cepstrum')
     plt.plot(powerceps[1:30, ], linestyle='dashed', label="Estimated cepstrum")
+    plt.xlabel("Numero coefficienti")
+    plt.ylabel("Valore cepstrum")
     plt.legend()
+    plt.savefig(f'../th_cepstrum_plots/{title_plots}.png', dpi=300)
     plt.show()
 
 
-compare_th_data_cepstrum()
+compare_th_data_cepstrum(2**12, "Confronto cepstrum sistema SISO 2^12 campioni")
+compare_th_data_cepstrum(2**6, "Confronto cepstrum sistema SISO 2^6 campioni")
