@@ -1,5 +1,5 @@
 import numpy as np
-from electric_circuits.test_clustering import setup_and_execute_tests
+from electric_circuits.test_clustering import test_1, test_2, test_3, test_4, test_5
 from mimo_systems.cepstral_distance_mimo import compute_cepstral_distance, mimo_distance_single_input_active
 from mimo_systems.mimo_system import compute_distance_between_mimo_systems
 from mimo_systems.test_clustering import test_clustering_two_mimo_systems
@@ -22,13 +22,16 @@ from fMRI_data.fMRI_data_generator import (
 from fMRI_data.test_clustering import test_clustering, test_clustering_single_input_activated
 
 # SISO -> circuit
-# setup_and_execute_tests()
-
+# test_1()
+# test_2()
+# test_3()
+# test_4()
+test_5()
 # MIMO System
 # compute_distance_between_mimo_systems()
 # test_clustering_two_mimo_systems()
 
-sys_1 = generate_estimated_system("100206")
+'''sys_1 = generate_estimated_system("100206")
 sys_2 = generate_estimated_system("101309")
 
 # generate different inputs
@@ -52,7 +55,7 @@ print(f"Execution time: {end_time-start_time} sec")
 print("--------------------------------------------------------")
 dist_different = np.zeros(148)
 dist_same = np.zeros(148)
-
+'''
 
 # fill different systems distance
 '''for j in range(148):
@@ -70,18 +73,18 @@ print(dist_same[significant_regions])
 
 norms = compute_norm_for_all_systems()
 systems = get_systems_with_different_norms(5, 80, norms)
-print(systems)'''
+print(systems)
 
 poles_1, zeros_1 = ct.poles(sys_1), ct.zeros(sys_1)
 poles_2, zeros_2 = ct.poles(sys_2), ct.zeros(sys_2)
 distance_from_p_z = poles_and_zeros_distance(poles_1, zeros_1, poles_2, zeros_2)
 print(f"Distance with poles and zeros: {distance_from_p_z}")
 print(f"Sys_1 norm: {poles_zeros_norm(poles_1, zeros_1)}")
-print(f"Sys_2 norm: {poles_zeros_norm(poles_2, zeros_2)}")
+print(f"Sys_2 norm: {poles_zeros_norm(poles_2, zeros_2)}")'''
 # plot_cepstrum_fMRI_systems(in_1, y_sim_1, "100206")
 # plot_cepstrum_fMRI_systems(in_2, y_sim_3, "100206")
 # test_clustering()
 
 # systems = get_distant_systems(10, 10)
 # print(systems.keys())
-test_clustering_single_input_activated()
+# test_clustering_single_input_activated()

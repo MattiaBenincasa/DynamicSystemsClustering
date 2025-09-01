@@ -26,3 +26,5 @@ cython_debug/
 fMRI/fMRI_data/
 fMRI_data/matrix_estimated
 fMRI_data/unrelated_subjects_final.txt
+distance_results_latex_tables/
+result_plots/

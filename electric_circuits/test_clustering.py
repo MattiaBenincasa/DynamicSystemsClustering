@@ -5,12 +5,28 @@ from electric_circuits.electric_circuits import (generate_discrete_lti_circuit,
                                                  simulate_circuit_on_multi_input_with_x0,
                                                  generate_multiple_multi_sin_waves,
                                                  simulate_circuit_on_multiple_inputs_with_output_noise)
-from clustering import generate_dataset_circuit, k_means, compute_and_plot_conf_matrix
+from clustering import generate_dataset_circuit, k_means
+from sklearn_extra.cluster import KMedoids
 from sklearn.metrics.cluster import adjusted_rand_score
 import numpy as np
 from electric_circuits.utils_test_cepstral_distance import (compute_avg_distances,
                                                             plot_distance_comparison,
-                                                            plot_mean_and_std, compute_mean_and_std)
+                                                            plot_ari_indices, compute_mean_and_std,
+                                                            save_distance_results_into_latex_table)
+from cepstral_distance_siso import extended_cepstral_distance
+
+
+def compute_distance_matrix(dataset):
+    length = len(dataset)
+    dm = np.zeros((length, length))
+
+    for i in range(length):
+        for j in range(i+1, length):
+            dist = extended_cepstral_distance(dataset[i][0], dataset[i][1], dataset[j][0], dataset[j][1])
+            dm[i, j] = dm[j, i] = dist
+        print(f"column {i} computed")
+
+    return dm
 
 
 def init_circuits(fs=1):
@@ -32,7 +48,7 @@ def init_circuits(fs=1):
     return sys_1, sys_2
 
 
-def test_two_circuits_clustering(sys_1, sys_2, n_samples, r, inputs):
+def test_two_circuits_clustering(sys_1, sys_2, n_samples, r, inputs, label_plot):
 
     ari_with_different_length = {}
     distance_with_different_lengths_same_system = {}
@@ -55,27 +71,32 @@ def test_two_circuits_clustering(sys_1, sys_2, n_samples, r, inputs):
             distance_different.append(dist_avg_different)
 
             dataset, true_clusters = generate_dataset_circuit(inputs[n][i], outputs['system_1'], outputs['system_2'])
-            centroids, predicted_clusters = k_means(dataset, 2)
+            dm = compute_distance_matrix(dataset)
+            model_km = KMedoids(n_clusters=2, metric="precomputed", random_state=0, max_iter=1000)
+            predicted_clusters = model_km.fit_predict(dm)
             ari.append(adjusted_rand_score(true_clusters, predicted_clusters))
-            print("computed")
+            print(f"test {i} computed")
         ari_with_different_length[n] = ari
         distance_with_different_lengths_same_system[n] = distance_same
         distance_with_different_lengths_different_systems[n] = distance_different
         print(f'{n} computed')
-
-    plot_distance_comparison(compute_mean_and_std(distance_with_different_lengths_same_system),
-                             compute_mean_and_std(distance_with_different_lengths_different_systems),
-                             title="Confronto delle distanze",
+    results_same = compute_mean_and_std(distance_with_different_lengths_same_system)
+    results_different = compute_mean_and_std(distance_with_different_lengths_different_systems)
+    plot_distance_comparison(results_same,
+                             results_different,
+                             title=f"{label_plot} - Confronto delle distanze",
                              x_label="lunghezza serie temporali",
-                             y_label="distanza")
+                             y_label="valore distanza")
 
-    plot_mean_and_std(compute_mean_and_std(ari_with_different_length),
-                      title="Clustering di serie temporali di lunghezza diversa",
-                      x_label="lunghezza serie temporali",
-                      y_label="indice ARI")
+    save_distance_results_into_latex_table(results_same, results_different, f"{label_plot} - Confronto delle distanze")
+
+    plot_ari_indices(compute_mean_and_std(ari_with_different_length),
+                     title=f"{label_plot} - Valutazione ARI clustering",
+                     x_label="lunghezza serie temporali",
+                     y_label="indice ARI")
 
 
-def test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, inputs):
+def test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, inputs, label_plot):
 
     ari_with_different_snr = {}
     distance_with_different_snr_same_system = {}
@@ -100,28 +121,33 @@ def test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, inpu
             distance_same.append(dist_avg_same)
             distance_different.append(dist_avg_different)
 
-            centroids_noise, predicted_clusters_noise = k_means(dataset_noise, 2)
+            dm = compute_distance_matrix(dataset_noise)
+            model_km = KMedoids(n_clusters=2, metric="precomputed", random_state=0, max_iter=1000)
+            predicted_clusters_noise = model_km.fit_predict(dm)
             ari.append(adjusted_rand_score(true_clusters_noise, predicted_clusters_noise))
-            print(f'SNR {snr} computed')
+            print(f'SNR {snr} computed - test n. {i}')
         ari_with_different_snr[snr] = ari
         distance_with_different_snr_same_system[snr] = distance_same
         distance_with_different_snr_different_system[snr] = distance_different
-
-    plot_distance_comparison(compute_mean_and_std(distance_with_different_snr_same_system),
-                             compute_mean_and_std(distance_with_different_snr_different_system),
-                             title="Confronto delle distanze",
+    results_same = compute_mean_and_std(distance_with_different_snr_same_system)
+    results_different = compute_mean_and_std(distance_with_different_snr_different_system)
+    plot_distance_comparison(results_same,
+                             results_different,
+                             title=f"{label_plot} - Confronto delle distanze",
                              x_label="Rumore di misura SNR (dB)",
-                             y_label="distanza")
+                             y_label="valore distanza")
 
-    plot_mean_and_std(compute_mean_and_std(ari_with_different_snr),
-                      title="Clustering di serie temporali con errori di misura in output",
-                      x_label="Rumore di misura SNR (dB)",
-                      y_label="indice ARI")
+    save_distance_results_into_latex_table(results_same, results_different, f"{label_plot} - Confronto delle distanze")
+
+    plot_ari_indices(compute_mean_and_std(ari_with_different_snr),
+                     title=f"{label_plot} - Valutazione ARI clustering",
+                     x_label="Rumore di misura SNR (dB)",
+                     y_label="indice ARI")
 
 
-def test_clustering_with_different_initial_conditions(sys_1, sys_2, sigma, n_samples, r, inputs, n_inputs):
+def test_clustering_with_different_initial_conditions(sys_1, sys_2, intensity_scale, n_samples, r, inputs, n_inputs, label_plot):
     # random initial conditions
-    x0 = np.random.normal(0, sigma, size=(3, n_inputs))
+    x0 = intensity_scale*np.random.normal(0, 0.4, size=(3, n_inputs))
     ari_with_different_length = {}
     distance_with_different_lengths_same_system = {}
     distance_with_different_lengths_different_systems = {}
@@ -140,57 +166,106 @@ def test_clustering_with_different_initial_conditions(sys_1, sys_2, sigma, n_sam
             distance_different.append(dist_avg_different)
 
             dataset, true_clusters = generate_dataset_circuit(inputs[n][i], outputs_1, outputs_2)
-            centroids, predicted_clusters = k_means(dataset, 2)
+            dm = compute_distance_matrix(dataset)
+            model_km = KMedoids(n_clusters=2, metric="precomputed", random_state=0, max_iter=1000)
+            predicted_clusters = model_km.fit_predict(dm)
             ari.append(adjusted_rand_score(true_clusters, predicted_clusters))
-            print("computed")
+            print(f"test {i} computed - {n} samples")
         print(f'{n} computed')
         ari_with_different_length[n] = ari
         distance_with_different_lengths_same_system[n] = distance_same
         distance_with_different_lengths_different_systems[n] = distance_different
-
-    plot_distance_comparison(compute_mean_and_std(distance_with_different_lengths_same_system),
-                             compute_mean_and_std(distance_with_different_lengths_different_systems),
-                             title="Confronto delle distanze",
+    results_same = compute_mean_and_std(distance_with_different_lengths_same_system)
+    results_different = compute_mean_and_std(distance_with_different_lengths_different_systems)
+    plot_distance_comparison(results_same,
+                             results_different,
+                             title=f"{label_plot} - Confronto delle distanze",
                              x_label="lunghezza serie temporali",
-                             y_label="distanza")
+                             y_label="valore distanza")
+    save_distance_results_into_latex_table(results_same, results_different, title=f"{label_plot} - Confronto delle distanze")
+    plot_ari_indices(compute_mean_and_std(ari_with_different_length),
+                     title=f"{label_plot} - Valutazione ARI clustering",
+                     x_label="lunghezza serie temporali",
+                     y_label="indice ARI")
 
-    plot_mean_and_std(compute_mean_and_std(ari_with_different_length),
-                      title="Clustering con condizioni iniziali diverse da zero",
-                      x_label="lunghezza serie temporali",
-                      y_label="indice ARI")
 
-
-def setup_and_execute_tests():
+def test_1():
     fs = 100
     sys_1, sys_2 = init_circuits(fs)
-    n_samples = [2**10, 2**12, 2**14]
-    r = 3
+    n_samples = [2 ** 6, 2 ** 8, 2**10, 2**12, 2**14, 2**16]
+    r = 10
 
-    # white noise inputs
     white_noise_inputs = {}
 
     for n in n_samples:
-        white_noise_inputs[n] = [generate_white_noise_signal(n, 0, 0.6, 50) for _ in range(r)]
+        white_noise_inputs[n] = [generate_white_noise_signal(n, 0, 0.6, 100) for _ in range(r)]
 
-    test_two_circuits_clustering(sys_1, sys_2, n_samples, r, white_noise_inputs)
+    test_two_circuits_clustering(sys_1, sys_2, n_samples, r, white_noise_inputs, label_plot="Test 1")
 
-    snr_values = [35, 30, 25, 15]
-    white_noise_inputs_snr = {}
-    for snr in snr_values:
-        white_noise_inputs_snr[snr] = [generate_white_noise_signal(n_samples[0], 0, 0.6, 50) for _ in range(len(snr_values))]
-    test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, white_noise_inputs_snr)
-    # test_clustering_with_different_initial_conditions(sys_1, sys_2, 1, n_samples, r, white_noise_inputs, 50)
-    # sinusoidal inputs
-    sinusoidal_inputs = {}
+
+def test_2():
+    fs = 100
+    sys_1, sys_2 = init_circuits(fs)
+    n_samples = [2 ** 6, 2**8, 2 ** 10, 2 ** 12, 2**14, 2**16]
+    r = 10
+    f1 = 1  # Hz
+    f2 = 2  # Hz
+    f3 = 5  # Hz
+
+    sinusoidal_signals = {}
 
     for n in n_samples:
-        sinusoidal_inputs[n] = [generate_sinusoidal_signal(n, fs=fs, n_signals=50) for _ in range(r)]
+        sinusoidal_signals[n] = [generate_sinusoidal_signal(n, f1, fs=fs, n_signals=30) +
+                                 generate_sinusoidal_signal(n, f2, fs=fs, n_signals=40) +
+                                 generate_sinusoidal_signal(n, f3, fs=fs, n_signals=30) for _ in range(r)]
 
-    # test_two_circuits_clustering(sys_1, sys_2, n_samples, r, sinusoidal_inputs)
+    test_two_circuits_clustering(sys_1, sys_2, n_samples, r, sinusoidal_signals, label_plot="Test 2")
 
-    # multisine waves inputs
-    multisine_waves = {}
+
+def test_3():
+    fs = 100
+    sys_1, sys_2 = init_circuits(fs)
+    n_samples = [2 ** 6, 2**8, 2**10, 2**12, 2**14, 2**16]
+    r = 10
+    f = 2  # Hz
+
+    input_signals = {}
+
     for n in n_samples:
-        multisine_waves[n] = [generate_multiple_multi_sin_waves(n, 50, fs) for _ in range(r)]
+        input_signals[n] = [generate_sinusoidal_signal(n, f, fs=fs, n_signals=50) +
+                            generate_white_noise_signal(n, 0, 0.6, n_signals=50) +
+                            generate_multiple_multi_sin_waves(n, fs=fs, n_signals=50) for _ in range(r)]
 
-    # test_two_circuits_clustering(sys_1, sys_2, n_samples, r, multisine_waves)
+    test_two_circuits_clustering(sys_1, sys_2, n_samples, r, input_signals, label_plot="Test 3")
+
+
+def test_4():
+    fs = 100
+    sys_1, sys_2 = init_circuits(fs)
+    n_samples = [2 ** 10, 2 ** 12, 2 ** 14, 2 ** 16]
+    snr = [35, 30, 20, 15, 10]
+    r = 10
+
+    input_signals = {}
+
+    for n in n_samples:
+        for sn in snr:
+            input_signals[sn] = [generate_white_noise_signal(n, 0, 0.7, n_signals=100) for _ in range(r)]
+
+        test_increasing_noise_intensity_clustering(sys_1, sys_2, snr, r, input_signals, f'Test 4 - {n} campioni')
+
+
+def test_5():
+    fs = 100
+    sys_1, sys_2 = init_circuits(fs)
+    n_samples = [2 ** 10, 2 ** 12, 2 ** 14, 2**16]
+    intensity_scale = [1, 10, 100, 500]
+    r = 10
+
+    white_noise_inputs = {}
+
+    for n in n_samples:
+        white_noise_inputs[n] = [generate_white_noise_signal(n, 0, 0.6, 100) for _ in range(r)]
+
+    for scale in intensity_scale:
+        test_clustering_with_different_initial_conditions(sys_1, sys_2, scale, n_samples, r, white_noise_inputs, 100, f'Test 5 - k = {scale}')
