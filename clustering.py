@@ -62,7 +62,6 @@ def compute_and_plot_conf_matrix(true_labels, pred_labels, title_plot=None):
 # CLUSTERING ADAPTED FOR MIMO DATASET
 
 def generate_dataset_mimo_systems(inputs, outputs_1, outputs_2):
-    inputs = [u.T for u in inputs]
     inputs_ds = np.array(inputs + inputs)
     outputs_ds = np.array(outputs_1 + outputs_2)
     true_clusters = np.array([0]*len(inputs) + [1]*len(inputs))
@@ -74,7 +73,7 @@ def assign_clusters_mimo(inputs, outputs, cen_in, cen_out, k):
     clusters = []
     n_points = len(inputs)
     for i in range(n_points):
-        distances = [compute_cepstral_distance(inputs[i], outputs[i], cen_in[j], cen_out[j], eps=1e-14) for j in range(k)]
+        distances = [compute_cepstral_distance(inputs[i], outputs[i], cen_in[j], cen_out[j]) for j in range(k)]
         cluster = np.argmin(distances)
         clusters.append(cluster)
 

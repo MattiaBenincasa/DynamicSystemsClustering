@@ -28,4 +28,6 @@ fMRI_data/matrix_estimated
 fMRI_data/unrelated_subjects_final.txt
 distance_results_latex_tables/
 result_plots/
-th_cepstrum_plots
+th_cepstrum_plots/
+conf_matrices/
+siso_extended_to_mimo/

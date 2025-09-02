@@ -1,6 +1,6 @@
 import numpy as np
 import control.matlab as ml
-from siso_cepstrum import poles_zeros_cepstrum, poles_zeros_norm
+from theoretical_cepstrum.siso_cepstrum import poles_zeros_cepstrum, poles_zeros_norm
 import control
 from matplotlib import pyplot as plt
 from mimo_systems.cepstral_distance_mimo import compute_cepstrum_transfer_function
@@ -45,5 +45,5 @@ def comparing_th_data_cepstrum(n_samples, n_states, n_inputs, n_outputs, title_p
 
 
 # for this simulation it is recommended to set nperseg=4096 ((2^14)/4) in compute_cpsd_matrix() cepstral_distance_mimo.py
-comparing_th_data_cepstrum(2**14, 3, 3, 3, "Confronto cepstrum MIMO 3 input - 3 output")
-comparing_th_data_cepstrum(2**14, 20, 6, 148, "Confronto cepstrum MIMO 6 input - 148 output")
+# comparing_th_data_cepstrum(2**14, 3, 3, 3, "Confronto cepstrum MIMO 3 input - 3 output")
+# comparing_th_data_cepstrum(2**14, 20, 6, 148, "Confronto cepstrum MIMO 6 input - 148 output")

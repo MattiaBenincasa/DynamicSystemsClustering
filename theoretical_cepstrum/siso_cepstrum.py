@@ -81,5 +81,5 @@ def compare_th_data_cepstrum(n_samples, title_plots):
     plt.show()
 
 
-compare_th_data_cepstrum(2**12, "Confronto cepstrum sistema SISO 2^12 campioni")
-compare_th_data_cepstrum(2**6, "Confronto cepstrum sistema SISO 2^6 campioni")
+#compare_th_data_cepstrum(2**12, "Confronto cepstrum sistema SISO 2^12 campioni")
+#compare_th_data_cepstrum(2**6, "Confronto cepstrum sistema SISO 2^6 campioni")

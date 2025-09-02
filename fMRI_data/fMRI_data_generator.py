@@ -5,7 +5,8 @@ import random
 from control import ss, forced_response
 from matplotlib import pyplot as plt
 from theoretical_cepstrum.siso_cepstrum import poles_zeros_cepstrum, poles_and_zeros_distance, poles_zeros_norm
-from mimo_systems.cepstral_distance_mimo import compute_cepstrum_transfer_function
+from mimo_systems.cepstral_distance_mimo import compute_cepstrum_transfer_function, compute_cepstral_distance
+import random
 
 
 def load_fMRI_matrix(subject_id):
@@ -109,6 +110,33 @@ def compute_norm_for_all_systems():
     return norms
 
 
+def print_distance_between_systems(sys_1_id, sys_2_id, cue_times, reps):
+    sys_1 = generate_estimated_system(sys_1_id)
+    sys_2 = generate_estimated_system(sys_2_id)
+    np.random.seed(2)
+    random.seed(2)
+    same_distances = []
+    different_distances = []
+
+    for r in range(reps):
+        in_1 = generate_input_from_visual_cue_times(cue_times)
+        in_2 = generate_input_from_visual_cue_times(cue_times)
+
+        _, y_sim_1 = simulate_estimated_statespace_system(sys_1, in_1)
+        _, y_sim_2 = simulate_estimated_statespace_system(sys_2, in_1)
+
+        _, y_sim_12 = simulate_estimated_statespace_system(sys_1, in_2)
+        same_distances.append(compute_cepstral_distance(in_1, y_sim_1, in_2, y_sim_12, regularized=True))
+        different_distances.append(compute_cepstral_distance(in_1, y_sim_1, in_1, y_sim_2, regularized=True))
+
+    poles_1, zeros_1 = control.poles(sys_1), control.zeros(sys_1)
+    poles_2, zeros_2 = control.poles(sys_2), control.zeros(sys_2)
+    distance_from_p_z = poles_and_zeros_distance(poles_1, zeros_1, poles_2, zeros_2)
+    print(f'Cepstral distance data-based between different systems: Mean: {np.mean(different_distances)}\t std: {np.std(different_distances)}')
+    print(f'Cepstral distance data-based between same system: Mean: {np.mean(same_distances)}\t std: {np.std(same_distances)}')
+    print(f"Cepstral distance with poles and zeros: {distance_from_p_z}")
+
+
 def get_systems_with_different_norms(n_systems, delta, norms):
     items = sorted(norms.items(), key=lambda x: x[1])
     systems = {}
@@ -124,7 +152,7 @@ def get_systems_with_different_norms(n_systems, delta, norms):
 
 
 def get_distant_systems(distance, n_systems):
-    systems_selected = {"100206": generate_estimated_system("100206")}
+    systems_selected = {"667056": generate_estimated_system("667056")}
 
     with open("fMRI_data/unrelated_subjects_final.txt", "r") as f:
         subject_ids = [line.strip() for line in f if line.strip()]
