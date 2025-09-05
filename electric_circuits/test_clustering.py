@@ -190,7 +190,7 @@ def test_clustering_with_different_initial_conditions(sys_1, sys_2, intensity_sc
 
 
 def test_1():
-    fs = 100
+    fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 6, 2 ** 8, 2**10, 2**12, 2**14, 2**16]
     r = 10
@@ -204,7 +204,7 @@ def test_1():
 
 
 def test_2():
-    fs = 100
+    fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 6, 2**8, 2 ** 10, 2 ** 12, 2**14, 2**16]
     r = 10
@@ -223,7 +223,7 @@ def test_2():
 
 
 def test_3():
-    fs = 100
+    fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 6, 2**8, 2**10, 2**12, 2**14, 2**16]
     r = 10
@@ -240,10 +240,10 @@ def test_3():
 
 
 def test_4():
-    fs = 100
+    fs = 50
     sys_1, sys_2 = init_circuits(fs)
-    n_samples = [2 ** 10, 2 ** 12, 2 ** 14, 2 ** 16]
-    snr = [35, 30, 20, 15, 10]
+    n_samples = [2 ** 12, 2 ** 16]
+    snr = [30, 25, 20, 15, 10]
     r = 10
 
     input_signals = {}
@@ -256,10 +256,10 @@ def test_4():
 
 
 def test_5():
-    fs = 100
+    fs = 50
     sys_1, sys_2 = init_circuits(fs)
-    n_samples = [2 ** 10, 2 ** 12, 2 ** 14, 2**16]
-    intensity_scale = [1, 10, 100, 500]
+    n_samples = [2 ** 10, 2**12, 2 ** 14]
+    intensity_scale = [1, 10, 100]
     r = 10
 
     white_noise_inputs = {}

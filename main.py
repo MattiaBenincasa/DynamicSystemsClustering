@@ -31,8 +31,8 @@ from fMRI_data.test_clustering import test_clustering, test_clustering_single_in
 # MIMO System
 # compute_distance_between_mimo_systems()
 # test_clustering_two_mimo_systems()
-# print_distance_between_systems("100206", "756055", [12, 33, 54, 75, 96, 138, 159, 180, 221, 242], 10)
-
+print_distance_between_systems("100610", "667056", [12, 33, 54, 75, 96, 138, 159, 180, 221, 242], 10)
+print_distance_between_systems("100206", "101309", [12, 33, 54, 75, 96, 138, 159, 180, 221, 242], 10)
 # test_clustering(6, 50, 5)
 # test_clustering(6, 50, 10)
 # test_clustering(6, 50, 20)
@@ -42,5 +42,5 @@ from fMRI_data.test_clustering import test_clustering, test_clustering_single_in
 # test_clustering(10, 25, 5)
 # test_clustering(10, 25, 10)
 # test_clustering(10, 25, 20)
-
+# test_clustering(None, None, 15)
 # test_clustering_single_input_activated()

@@ -46,6 +46,7 @@ def compute_distance_matrix_single_input_active(dataset_in, dataset_out):
 def test_clustering(n_systems, delta, n_data_per_cluster):
     # id con dinamiche molto simili 100206, 100610, 101006, 517239, 520228, 524135, 525541, 667056
     # id_systems = (100206, 101309, 756055) # 695768
+    # id_systems = (100206, 101309, 756055, 100610, 525541, 667056, 101006, 517239)
     np.random.seed(5)
     random.seed(5)
     norms = compute_norm_for_all_systems()
@@ -153,14 +154,14 @@ def execute_and_evaluate_clustering(systems, data_per_cluster, inputs):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm_agg)
     disp.plot()
     plt.title(f"Agglomerative clustering - ARI = {ari_agg:.2f}")
-    # plt.savefig(f"conf_matrices/agg_{len(systems)} clusters {len(inputs)} n_inputs", dpi=300)
-    plt.savefig(f"siso_extended_to_mimo/agg_{len(systems)} clusters {len(inputs)} n_inputs", dpi=300)
+    plt.savefig(f"conf_matrices/agg_{len(systems)} clusters {len(inputs)} n_inputs - similar_systems", dpi=300)
+    # plt.savefig(f"siso_extended_to_mimo/agg_{len(systems)} clusters {len(inputs)} n_inputs", dpi=300)
     plt.show()
 
     cm_km = confusion_matrix(true_clusters, predicted_clusters_km)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm_km)
     disp.plot()
     plt.title(f"KMedoids clustering - ARI = {ari_km:.2f}")
-    # plt.savefig(f"conf_matrices/km_{len(systems)} clusters {len(inputs)} n_inputs", dpi=300)
-    plt.savefig(f"siso_extended_to_mimo/km_{len(systems)} clusters {len(inputs)} n_inputs", dpi=300)
+    plt.savefig(f"conf_matrices/km_{len(systems)} clusters {len(inputs)} n_inputs - similar_systems", dpi=300)
+    # plt.savefig(f"siso_extended_to_mimo/km_{len(systems)} clusters {len(inputs)} n_inputs", dpi=300)
     plt.show()

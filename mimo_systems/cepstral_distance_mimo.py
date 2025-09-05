@@ -26,7 +26,7 @@ def compute_power_cepstrum(p_xy, regularized):
 
     if regularized:
         tr = np.real(np.trace(p_xy, axis1=1, axis2=2)) / n_x
-        eps = 1e-15 * tr
+        eps = 1e-12 * tr
     else:
         eps = np.zeros(n_freq)
 
@@ -56,8 +56,8 @@ def compute_cepstral_distance(u_1, y_1, u_2, y_2, regularized=False):
     c_h_1 = compute_cepstrum_transfer_function(u_1, y_1, regularized)
     c_h_2 = compute_cepstrum_transfer_function(u_2, y_2, regularized)
 
-    k = np.arange(len(c_h_1))
-    diff = c_h_1 - c_h_2
+    k = np.arange(len(c_h_1)-1)
+    diff = c_h_1[1:] - c_h_2[1:]
     distance = np.sum(k * diff ** 2)
 
     return distance

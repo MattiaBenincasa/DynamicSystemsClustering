@@ -59,7 +59,8 @@ def compare_th_data_cepstrum(n_samples, title_plots):
     k = 1
 
     sys = sps.ZerosPolesGain(zeros, poles, k, dt=1 / fs)  # Initialize the system
-    u = np.random.randn(n_samples)
+    # u = np.random.randn(n_samples)
+    u = np.sin(2 * np.pi * 2 * n_samples * 1/fs) + np.random.normal(0, 0.2, size=n_samples)
     # x_0 = np.random.normal(0, 200, size=3)
     # noise = 100*np.random.normal(10, 100, size=2**6)
     ty, y = sps.dlsim(sys, u)

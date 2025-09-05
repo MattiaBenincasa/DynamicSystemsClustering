@@ -135,6 +135,10 @@ def print_distance_between_systems(sys_1_id, sys_2_id, cue_times, reps):
     print(f'Cepstral distance data-based between different systems: Mean: {np.mean(different_distances)}\t std: {np.std(different_distances)}')
     print(f'Cepstral distance data-based between same system: Mean: {np.mean(same_distances)}\t std: {np.std(same_distances)}')
     print(f"Cepstral distance with poles and zeros: {distance_from_p_z}")
+    print("--------------------NORMS-------------------------------")
+    print(f'Norm system {sys_1_id}: {poles_zeros_norm(poles_1, zeros_1)}')
+    print(f'Norm system {sys_2_id}: {poles_zeros_norm(poles_2, zeros_2)}')
+    print(f'--------------------------------------------------------')
 
 
 def get_systems_with_different_norms(n_systems, delta, norms):
@@ -182,3 +186,17 @@ def plot_cepstrum_fMRI_systems(u, y, id_system):
     plt.plot(estimated_cepstrum[1:30, ], linestyle='dashed', label="Estimated cepstrum")
     plt.legend()
     plt.show()
+
+
+def get_th_distance_matrix(id_systems):
+    n_systems = len(id_systems)
+    dist_matrix = np.zeros((n_systems, n_systems))
+    for i in range(n_systems):
+        sys_i = generate_estimated_system(id_systems[i])
+        for j in range(i+1, n_systems):
+            sys_j = generate_estimated_system(id_systems[j])
+            poles_1, zeros_1 = control.poles(sys_i), control.zeros(sys_i)
+            poles_2, zeros_2 = control.poles(sys_j), control.zeros(sys_j)
+            dist_matrix[i, j] = dist_matrix[j, i] = poles_and_zeros_distance(poles_1, zeros_1, poles_2, zeros_2)
+
+    return dist_matrix
