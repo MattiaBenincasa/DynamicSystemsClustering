@@ -5,8 +5,9 @@ from electric_circuits.electric_circuits import (generate_discrete_lti_circuit,
                                                  simulate_circuit_on_multi_input_with_x0,
                                                  generate_multiple_multi_sin_waves,
                                                  simulate_circuit_on_multiple_inputs_with_output_noise)
-from clustering import generate_dataset_circuit, k_means
+from clustering import generate_dataset_circuit
 from sklearn_extra.cluster import KMedoids
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics.cluster import adjusted_rand_score
 import numpy as np
 from electric_circuits.utils_test_cepstral_distance import (compute_avg_distances,
@@ -50,12 +51,14 @@ def init_circuits(fs=1):
 
 def test_two_circuits_clustering(sys_1, sys_2, n_samples, r, inputs, label_plot):
 
-    ari_with_different_length = {}
+    km_ari_with_different_length = {}
+    agg_ari_with_different_length = {}
     distance_with_different_lengths_same_system = {}
     distance_with_different_lengths_different_systems = {}
 
     for n in n_samples:
-        ari = []
+        km_ari = []
+        agg_ari = []
         distance_same = []
         distance_different = []
         for i in range(r):
@@ -73,10 +76,14 @@ def test_two_circuits_clustering(sys_1, sys_2, n_samples, r, inputs, label_plot)
             dataset, true_clusters = generate_dataset_circuit(inputs[n][i], outputs['system_1'], outputs['system_2'])
             dm = compute_distance_matrix(dataset)
             model_km = KMedoids(n_clusters=2, metric="precomputed", random_state=0, max_iter=1000)
-            predicted_clusters = model_km.fit_predict(dm)
-            ari.append(adjusted_rand_score(true_clusters, predicted_clusters))
+            agg_clustering = AgglomerativeClustering(n_clusters=2, metric='precomputed', linkage='complete')
+            km_predicted_clusters = model_km.fit_predict(dm)
+            agg_predicted_clusters = agg_clustering.fit_predict(dm)
+            km_ari.append(adjusted_rand_score(true_clusters, km_predicted_clusters))
+            agg_ari.append(adjusted_rand_score(true_clusters, agg_predicted_clusters))
             print(f"test {i} computed")
-        ari_with_different_length[n] = ari
+        km_ari_with_different_length[n] = km_ari
+        agg_ari_with_different_length[n] = agg_ari
         distance_with_different_lengths_same_system[n] = distance_same
         distance_with_different_lengths_different_systems[n] = distance_different
         print(f'{n} computed')
@@ -90,20 +97,27 @@ def test_two_circuits_clustering(sys_1, sys_2, n_samples, r, inputs, label_plot)
 
     save_distance_results_into_latex_table(results_same, results_different, f"{label_plot} - Confronto delle distanze")
 
-    plot_ari_indices(compute_mean_and_std(ari_with_different_length),
-                     title=f"{label_plot} - Valutazione ARI clustering",
+    plot_ari_indices(compute_mean_and_std(km_ari_with_different_length),
+                     title=f"{label_plot} - Valutazione ARI KMedoids",
+                     x_label="lunghezza serie temporali",
+                     y_label="indice ARI")
+
+    plot_ari_indices(compute_mean_and_std(agg_ari_with_different_length),
+                     title=f"{label_plot} - Valutazione ARI Agglomerative Clustering",
                      x_label="lunghezza serie temporali",
                      y_label="indice ARI")
 
 
 def test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, inputs, label_plot):
 
-    ari_with_different_snr = {}
+    km_ari_with_different_snr = {}
+    agg_ari_with_different_snr = {}
     distance_with_different_snr_same_system = {}
     distance_with_different_snr_different_system = {}
 
     for snr in snr_values:
-        ari = []
+        km_ari = []
+        agg_ari = []
         distance_same = []
         distance_different = []
         for i in range(r):
@@ -123,10 +137,14 @@ def test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, inpu
 
             dm = compute_distance_matrix(dataset_noise)
             model_km = KMedoids(n_clusters=2, metric="precomputed", random_state=0, max_iter=1000)
-            predicted_clusters_noise = model_km.fit_predict(dm)
-            ari.append(adjusted_rand_score(true_clusters_noise, predicted_clusters_noise))
+            km_predicted_clusters_noise = model_km.fit_predict(dm)
+            agg_clustering = AgglomerativeClustering(n_clusters=2, metric='precomputed', linkage='complete')
+            agg_predicted_clusters_noise = agg_clustering.fit_predict(dm)
+            km_ari.append(adjusted_rand_score(true_clusters_noise, km_predicted_clusters_noise))
+            agg_ari.append(adjusted_rand_score(true_clusters_noise, agg_predicted_clusters_noise))
             print(f'SNR {snr} computed - test n. {i}')
-        ari_with_different_snr[snr] = ari
+        km_ari_with_different_snr[snr] = km_ari
+        agg_ari_with_different_snr[snr] = agg_ari
         distance_with_different_snr_same_system[snr] = distance_same
         distance_with_different_snr_different_system[snr] = distance_different
     results_same = compute_mean_and_std(distance_with_different_snr_same_system)
@@ -139,20 +157,28 @@ def test_increasing_noise_intensity_clustering(sys_1, sys_2, snr_values, r, inpu
 
     save_distance_results_into_latex_table(results_same, results_different, f"{label_plot} - Confronto delle distanze")
 
-    plot_ari_indices(compute_mean_and_std(ari_with_different_snr),
-                     title=f"{label_plot} - Valutazione ARI clustering",
+    plot_ari_indices(compute_mean_and_std(km_ari_with_different_snr),
+                     title=f"{label_plot} - Valutazione ARI KMedoids",
                      x_label="Rumore di misura SNR (dB)",
                      y_label="indice ARI")
+
+    plot_ari_indices(compute_mean_and_std(agg_ari_with_different_snr),
+                     title=f"{label_plot} - Valutazione ARI Agglomerative Clustering",
+                     x_label="Rumore di misura SNR (dB)",
+                     y_label="indice ARI"
+                     )
 
 
 def test_clustering_with_different_initial_conditions(sys_1, sys_2, intensity_scale, n_samples, r, inputs, n_inputs, label_plot):
     # random initial conditions
     x0 = intensity_scale*np.random.normal(0, 0.4, size=(3, n_inputs))
-    ari_with_different_length = {}
+    km_ari_with_different_length = {}
+    agg_ari_with_different_length = {}
     distance_with_different_lengths_same_system = {}
     distance_with_different_lengths_different_systems = {}
     for n in n_samples:
-        ari = []
+        km_ari = []
+        agg_ari = []
         distance_same = []
         distance_different = []
         for i in range(r):
@@ -168,11 +194,15 @@ def test_clustering_with_different_initial_conditions(sys_1, sys_2, intensity_sc
             dataset, true_clusters = generate_dataset_circuit(inputs[n][i], outputs_1, outputs_2)
             dm = compute_distance_matrix(dataset)
             model_km = KMedoids(n_clusters=2, metric="precomputed", random_state=0, max_iter=1000)
-            predicted_clusters = model_km.fit_predict(dm)
-            ari.append(adjusted_rand_score(true_clusters, predicted_clusters))
+            km_predicted_clusters = model_km.fit_predict(dm)
+            km_ari.append(adjusted_rand_score(true_clusters, km_predicted_clusters))
+            agg_clustering = AgglomerativeClustering(n_clusters=2, metric='precomputed', linkage='complete')
+            agg_predicted_clusters = agg_clustering.fit_predict(dm)
+            agg_ari.append(adjusted_rand_score(true_clusters, agg_predicted_clusters))
             print(f"test {i} computed - {n} samples")
         print(f'{n} computed')
-        ari_with_different_length[n] = ari
+        km_ari_with_different_length[n] = km_ari
+        agg_ari_with_different_length[n] = agg_ari
         distance_with_different_lengths_same_system[n] = distance_same
         distance_with_different_lengths_different_systems[n] = distance_different
     results_same = compute_mean_and_std(distance_with_different_lengths_same_system)
@@ -183,13 +213,19 @@ def test_clustering_with_different_initial_conditions(sys_1, sys_2, intensity_sc
                              x_label="lunghezza serie temporali",
                              y_label="valore distanza")
     save_distance_results_into_latex_table(results_same, results_different, title=f"{label_plot} - Confronto delle distanze")
-    plot_ari_indices(compute_mean_and_std(ari_with_different_length),
-                     title=f"{label_plot} - Valutazione ARI clustering",
+    plot_ari_indices(compute_mean_and_std(km_ari_with_different_length),
+                     title=f"{label_plot} - Valutazione ARI KMedoids",
+                     x_label="lunghezza serie temporali",
+                     y_label="indice ARI")
+
+    plot_ari_indices(compute_mean_and_std(agg_ari_with_different_length),
+                     title=f"{label_plot} - Valutazione ARI Agglomerative Clustering",
                      x_label="lunghezza serie temporali",
                      y_label="indice ARI")
 
 
 def test_1():
+    np.random.seed(42)
     fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 6, 2 ** 8, 2**10, 2**12, 2**14, 2**16]
@@ -204,6 +240,7 @@ def test_1():
 
 
 def test_2():
+    np.random.seed(42)
     fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 6, 2**8, 2 ** 10, 2 ** 12, 2**14, 2**16]
@@ -223,6 +260,7 @@ def test_2():
 
 
 def test_3():
+    np.random.seed(42)
     fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 6, 2**8, 2**10, 2**12, 2**14, 2**16]
@@ -240,9 +278,10 @@ def test_3():
 
 
 def test_4():
+    np.random.seed(42)
     fs = 50
     sys_1, sys_2 = init_circuits(fs)
-    n_samples = [2 ** 12, 2 ** 16]
+    n_samples = [2**10, 2**12, 2**14]
     snr = [30, 25, 20, 15, 10]
     r = 10
 
@@ -256,6 +295,7 @@ def test_4():
 
 
 def test_5():
+    np.random.seed(42)
     fs = 50
     sys_1, sys_2 = init_circuits(fs)
     n_samples = [2 ** 10, 2**12, 2 ** 14]
